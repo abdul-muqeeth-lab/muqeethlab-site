@@ -26,6 +26,20 @@
     --font-mono: 'DM Mono', monospace;
   }
 
+  [data-theme="light"] {
+    --bg: #f5f5f0;
+    --bg-elevated: #eaeae5;
+    --bg-card: #ffffff;
+    --text-primary: #1a1a18;
+    --text-secondary: #555550;
+    --text-muted: #888880;
+    --accent: #5a8a00;
+    --accent-dim: rgba(90, 138, 0, 0.08);
+    --accent-glow: rgba(90, 138, 0, 0.12);
+    --border: #d8d8d0;
+    --border-hover: #c0c0b8;
+  }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; font-size: 16px; }
 
@@ -36,9 +50,15 @@
     line-height: 1.6;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+    transition: background 0.3s ease, color 0.3s ease;
   }
 
   ::selection { background: var(--accent); color: var(--bg); }
+
+  section, .project-card, .service-card, .pub-item, .blog-card,
+  .affil-icon, .subscribe-form input, nav, footer, .metrics-bar {
+    transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  }
 
   /* NAV */
   nav {
@@ -49,12 +69,40 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(10, 10, 10, 0.8);
+    background: color-mix(in srgb, var(--bg) 80%, transparent);
     backdrop-filter: blur(20px);
     border-bottom: 1px solid transparent;
     transition: border-color 0.3s;
   }
   nav.scrolled { border-bottom-color: var(--border); }
+
+  .theme-toggle {
+    background: none;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    padding: 0.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: border-color 0.2s, background 0.2s;
+    margin-left: auto;
+    margin-right: 1.5rem;
+  }
+  .theme-toggle:hover { border-color: var(--accent); background: var(--accent-dim); }
+  .theme-toggle svg {
+    width: 18px; height: 18px;
+    stroke: var(--text-secondary);
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: stroke 0.2s;
+  }
+  .theme-toggle:hover svg { stroke: var(--accent); }
+  .theme-toggle .icon-sun { display: none; }
+  [data-theme="light"] .theme-toggle .icon-moon { display: none; }
+  [data-theme="light"] .theme-toggle .icon-sun { display: block; }
 
   .nav-logo {
     font-family: var(--font-mono);
@@ -74,8 +122,34 @@
     letter-spacing: 0.05em;
     transition: color 0.2s;
     text-transform: uppercase;
+    position: relative;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px; left: 0;
+    width: 0;
+    height: 1px;
+    background: var(--accent);
+    transition: width 0.3s ease;
   }
   .nav-links a:hover { color: var(--accent); }
+  .nav-links a:hover::after { width: 100%; }
+
+  /* DNA CANVAS */
+  .dna-canvas {
+    position: absolute;
+    top: 0; right: 0;
+    width: 50%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.2;
+  }
+  [data-theme="light"] .dna-canvas { opacity: 0.15; }
+  @media (max-width: 768px) {
+    .dna-canvas { width: 40%; opacity: 0.12; }
+  }
 
   /* HERO */
   .hero {
@@ -101,6 +175,10 @@
     100% { transform: translate(-80px, 80px); }
   }
 
+  .hero-label, .hero h1, .hero-sub, .hero-cta {
+    position: relative;
+    z-index: 1;
+  }
   .hero-label {
     font-family: var(--font-mono);
     font-size: 0.8rem;
@@ -155,7 +233,7 @@
     transition: transform 0.2s, box-shadow 0.2s;
   }
   .btn-primary:hover {
-    transform: translateY(-2px);
+    transform: translateY(-2px) scale(1.02);
     box-shadow: 0 8px 30px rgba(200, 255, 0, 0.2);
   }
 
@@ -177,11 +255,51 @@
   .btn-secondary:hover {
     border-color: var(--accent);
     background: var(--accent-dim);
+    transform: scale(1.02);
   }
 
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* METRICS BAR */
+  .metrics-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+    padding: 3rem;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  .metric-item {
+    text-align: center;
+  }
+  .metric-value {
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1.2;
+    margin-bottom: 0.4rem;
+  }
+  .metric-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .metric-item.fade-metric .metric-value {
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
+  .metric-item.fade-metric.visible .metric-value {
+    opacity: 1;
+  }
+  @media (max-width: 768px) {
+    .metrics-bar { grid-template-columns: repeat(2, 1fr); gap: 1.5rem; padding: 2rem 1.5rem; }
   }
 
   /* SECTIONS */
@@ -193,6 +311,14 @@
     letter-spacing: 0.2em;
     text-transform: uppercase;
     margin-bottom: 1rem;
+    transform: translateX(-15px);
+    opacity: 0;
+    transition: transform 0.5s ease, opacity 0.5s ease;
+  }
+  .reveal.visible .section-label,
+  .affiliations.visible .section-label {
+    transform: translateX(0);
+    opacity: 1;
   }
   .section-title {
     font-size: clamp(2rem, 4vw, 3rem);
@@ -211,6 +337,134 @@
     margin-bottom: 1.2rem;
   }
   .about-content strong { color: var(--text-primary); font-weight: 500; }
+
+  /* AFFILIATIONS */
+  .affiliations { text-align: center; padding: 4rem 3rem; }
+  .affil-logos {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 3rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+  }
+  .affil-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    filter: grayscale(1) brightness(0.5);
+    transition: filter 0.4s ease, transform 0.3s ease;
+    cursor: default;
+  }
+  .affil-item:hover {
+    filter: grayscale(0) brightness(1);
+    transform: translateY(-2px);
+  }
+  .affil-icon {
+    width: 52px;
+    height: 52px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--accent);
+    background: var(--bg-card);
+    transition: border-color 0.3s, background 0.3s;
+  }
+  .affil-item:hover .affil-icon {
+    border-color: var(--accent);
+    background: var(--accent-dim);
+  }
+  .affil-name {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    max-width: 120px;
+    text-align: center;
+    line-height: 1.4;
+  }
+  .affil-item:hover .affil-name { color: var(--text-secondary); }
+  @media (max-width: 768px) {
+    .affil-logos { gap: 2rem; }
+    .affiliations { padding: 3rem 1.5rem; }
+  }
+
+  /* TERMINAL */
+  .terminal-wrapper {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 0 3rem 4rem;
+  }
+  .terminal {
+    background: #111;
+    border-radius: 8px 8px 4px 4px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    line-height: 1.8;
+  }
+  .terminal-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 14px;
+    background: #1a1a1a;
+    border-bottom: 1px solid var(--border);
+  }
+  .terminal-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+  .terminal-dot.red { background: #ff5f57; }
+  .terminal-dot.yellow { background: #ffbd2e; }
+  .terminal-dot.green { background: #28c840; }
+  .terminal-bar-title {
+    margin-left: 8px;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+  }
+  .terminal-body {
+    padding: 1.2rem 1.4rem;
+    min-height: 200px;
+  }
+  .terminal-line {
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .terminal-line.cmd { color: var(--accent); }
+  .terminal-line.info { color: var(--text-secondary); }
+  .terminal-line.ok { color: var(--accent); }
+  .terminal-cursor {
+    display: inline-block;
+    width: 8px;
+    height: 1.1em;
+    background: var(--accent);
+    vertical-align: text-bottom;
+    animation: blink 0.8s step-end infinite;
+  }
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
+  [data-theme="light"] .terminal {
+    background: #1a1a1a;
+    border-color: #333;
+  }
+  [data-theme="light"] .terminal-bar { background: #252525; border-bottom-color: #333; }
+  [data-theme="light"] .terminal-line.cmd { color: #c8ff00; }
+  [data-theme="light"] .terminal-line.info { color: #aaa; }
+  [data-theme="light"] .terminal-line.ok { color: #c8ff00; }
+  [data-theme="light"] .terminal-cursor { background: #c8ff00; }
+  @media (max-width: 768px) {
+    .terminal-wrapper { padding: 0 1.5rem 3rem; }
+    .terminal { font-size: 0.72rem; }
+  }
 
   /* PROJECTS */
   .projects-grid {
@@ -241,7 +495,7 @@
   .project-card:hover {
     border-color: var(--border-hover);
     transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(200, 255, 0, 0.05);
   }
   .project-tag {
     font-family: var(--font-mono);
@@ -289,9 +543,9 @@
     padding: 1.8rem 2rem;
     border-left: 2px solid var(--accent);
     background: var(--bg-card);
-    transition: background 0.2s;
+    transition: background 0.2s, border-left-width 0.2s;
   }
-  .pub-item:hover { background: var(--bg-elevated); }
+  .pub-item:hover { background: var(--bg-elevated); border-left-width: 4px; }
   .pub-type {
     font-family: var(--font-mono);
     font-size: 0.7rem;
@@ -310,6 +564,92 @@
     font-family: var(--font-mono);
     font-size: 0.8rem;
     color: var(--text-muted);
+  }
+
+  /* BLOG */
+  .blog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+  .blog-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 2rem;
+    opacity: 0.55;
+    transition: opacity 0.3s, border-color 0.3s;
+  }
+  .blog-card:hover { opacity: 0.75; border-color: var(--border-hover); }
+  .blog-tag {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+    padding: 0.2rem 0.6rem;
+    border: 1px solid var(--border);
+    display: inline-block;
+  }
+  .blog-card h3 {
+    font-size: 1.05rem;
+    font-weight: 500;
+    margin-bottom: 0.6rem;
+    line-height: 1.4;
+    color: var(--text-secondary);
+  }
+  .blog-card p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 300;
+    line-height: 1.6;
+  }
+  .blog-subscribe {
+    margin-top: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    max-width: 420px;
+  }
+  .blog-subscribe p {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+  .subscribe-form {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .subscribe-form input {
+    flex: 1;
+    padding: 0.7rem 1rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .subscribe-form input::placeholder { color: var(--text-muted); }
+  .subscribe-form input:focus { border-color: var(--accent); }
+  .subscribe-form button {
+    padding: 0.7rem 1.2rem;
+    background: var(--accent);
+    color: var(--bg);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    letter-spacing: 0.03em;
+    transition: transform 0.2s;
+  }
+  .subscribe-form button:hover { transform: translateY(-1px); }
+  @media (max-width: 768px) {
+    .blog-grid { grid-template-columns: 1fr; }
+    .subscribe-form { flex-direction: column; }
   }
 
   /* SERVICES */
@@ -350,6 +690,10 @@
     stroke-width: 1.5;
     stroke-linecap: round;
     stroke-linejoin: round;
+    transition: transform 0.3s ease;
+  }
+  .service-card:hover .service-icon svg {
+    transform: rotate(8deg);
   }
 
   .service-card h3 {
@@ -384,7 +728,10 @@
     display: inline-block;
     margin-bottom: 2rem;
   }
-  .contact-email:hover { border-bottom-color: var(--accent); }
+  .contact-email:hover {
+    border-bottom-color: var(--accent);
+    text-shadow: 0 0 12px rgba(200, 255, 0, 0.4);
+  }
   .contact-links { display: flex; gap: 1.5rem; margin-top: 1rem; }
   .contact-links a {
     font-family: var(--font-mono);
@@ -428,11 +775,12 @@
   @media (max-width: 768px) {
     nav { padding: 1.2rem 1.5rem; }
     .mobile-toggle { display: block; }
+    .theme-toggle { margin-right: 0.8rem; }
     .nav-links {
       display: none;
       position: absolute;
       top: 100%; left: 0; right: 0;
-      background: var(--bg);
+      background: var(--bg-elevated);
       border-bottom: 1px solid var(--border);
       flex-direction: column;
       padding: 1.5rem;
@@ -464,6 +812,10 @@
 
 <nav id="navbar">
   <a href="#" class="nav-logo">muqeethlab.dev</a>
+  <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+    <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+  </button>
   <button class="mobile-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Toggle menu">
     <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   </button>
@@ -477,6 +829,7 @@
 </nav>
 
 <section class="hero">
+  <canvas class="dna-canvas" id="dna-canvas"></canvas>
   <div class="hero-label">Biomedical AI · Automation · Engineering</div>
   <h1>I engineer AI systems that automate clinical and biomedical research — <span class="accent">at scale.</span></h1>
   <p class="hero-sub">Health Informatics researcher at Indiana University Indianapolis. I design and build AI-driven pipelines that extract, classify, and structure biomedical data from complex, unstructured sources.</p>
@@ -485,6 +838,25 @@
     <a href="#projects" class="btn-secondary">See my work</a>
   </div>
 </section>
+
+<div class="metrics-bar reveal" id="metrics-bar">
+  <div class="metric-item" data-target="5" data-suffix="+">
+    <div class="metric-value">0</div>
+    <div class="metric-label">LLMs Orchestrated</div>
+  </div>
+  <div class="metric-item" data-target="3">
+    <div class="metric-value">0</div>
+    <div class="metric-label">Research Domains</div>
+  </div>
+  <div class="metric-item fade-metric">
+    <div class="metric-value">AMIA 2026</div>
+    <div class="metric-label">Oral Presentation</div>
+  </div>
+  <div class="metric-item fade-metric">
+    <div class="metric-value">1st Prize</div>
+    <div class="metric-label">International Conference</div>
+  </div>
+</div>
 
 <section id="about" class="reveal">
   <div class="section-label">01 — About</div>
@@ -495,6 +867,37 @@
     <p>If you need someone who understands both the biology and the engineering, <strong>let's talk.</strong></p>
   </div>
 </section>
+
+<div class="affiliations reveal">
+  <div class="section-label">Research Network</div>
+  <div class="affil-logos">
+    <div class="affil-item">
+      <div class="affil-icon">IU</div>
+      <div class="affil-name">Indiana University Indianapolis</div>
+    </div>
+    <div class="affil-item">
+      <div class="affil-icon">LS</div>
+      <div class="affil-name">Luddy School of Informatics</div>
+    </div>
+    <div class="affil-item">
+      <div class="affil-icon">A</div>
+      <div class="affil-name">AMIA</div>
+    </div>
+  </div>
+</div>
+
+<div class="terminal-wrapper reveal" id="terminal-section">
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="terminal-dot red"></div>
+      <div class="terminal-dot yellow"></div>
+      <div class="terminal-dot green"></div>
+      <span class="terminal-bar-title">pipeline.py</span>
+    </div>
+    <div class="terminal-body" id="terminal-body">
+    </div>
+  </div>
+</div>
 
 <section id="projects" class="reveal">
   <div class="section-label">02 — Projects</div>
@@ -557,8 +960,37 @@
   </div>
 </section>
 
+<section id="writing" class="reveal">
+  <div class="section-label">04 — Writing</div>
+  <h2 class="section-title">Thoughts & Technical Writing</h2>
+  <div class="blog-grid">
+    <div class="blog-card">
+      <div class="blog-tag">Coming Soon</div>
+      <h3>How We Built a Multi-Model Consensus Pipeline</h3>
+      <p>A technical deep-dive into orchestrating five LLMs for clinical trial eligibility extraction.</p>
+    </div>
+    <div class="blog-card">
+      <div class="blog-tag">Coming Soon</div>
+      <h3>Benchmarking Open-Source LLMs on HPC</h3>
+      <p>Lessons learned from running large-scale model evaluations on university compute clusters.</p>
+    </div>
+    <div class="blog-card">
+      <div class="blog-tag">Coming Soon</div>
+      <h3>From Molecules to Models: My Research Journey</h3>
+      <p>How I went from computational biology to building AI systems for clinical research.</p>
+    </div>
+  </div>
+  <div class="blog-subscribe">
+    <p>Subscribe to get notified when I publish.</p>
+    <div class="subscribe-form">
+      <input type="email" placeholder="your@email.com" aria-label="Email for notifications">
+      <button type="button">Notify me</button>
+    </div>
+  </div>
+</section>
+
 <section id="services" class="reveal">
-  <div class="section-label">04 — Services</div>
+  <div class="section-label">05 — Services</div>
   <h2 class="section-title">How I Can Help</h2>
   <div class="services-grid">
 
@@ -615,7 +1047,7 @@
 </section>
 
 <section id="contact" class="contact-section reveal">
-  <div class="section-label">05 — Contact</div>
+  <div class="section-label">06 — Contact</div>
   <h2 class="section-title">Let's Work Together</h2>
   <div class="contact-inner">
     <p>Got a project that needs someone who understands both the biology and the engineering? I'm available for consulting, contract research, and pipeline development.</p>
@@ -634,6 +1066,19 @@
 </footer>
 
 <script>
+  // Theme Toggle
+  (function() {
+    const saved = localStorage.getItem('theme');
+    if (saved) document.documentElement.setAttribute('data-theme', saved);
+    const btn = document.getElementById('theme-toggle');
+    btn.addEventListener('click', function() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+    });
+  })();
+
   const nav = document.getElementById('navbar');
   window.addEventListener('scroll', () => {
     nav.classList.toggle('scrolled', window.scrollY > 50);
@@ -652,6 +1097,208 @@
       document.querySelector('.nav-links').classList.remove('open');
     });
   });
+
+  // Terminal Typing Animation
+  (function() {
+    const lines = [
+      { text: '$ python pipeline.py --task extract', type: 'cmd' },
+      { text: '[INFO] Loading models: Claude Sonnet, GPT-4, Gemini, DeepSeek, Grok', type: 'info' },
+      { text: '[INFO] Processing clinical trials...', type: 'info' },
+      { text: '[OK] Extraction complete \u2014 traits identified \u2713', type: 'ok' },
+      { text: '[OK] Consensus reached across 5 models \u2713', type: 'ok' },
+      { text: '[OK] Classification: Actionable | Uncertain | Not Actionable \u2713', type: 'ok' }
+    ];
+    const body = document.getElementById('terminal-body');
+    let started = false;
+
+    function typeLine(lineIdx) {
+      if (lineIdx >= lines.length) {
+        // Remove cursor after all lines done
+        const cursor = body.querySelector('.terminal-cursor');
+        if (cursor) cursor.remove();
+        return;
+      }
+      const line = lines[lineIdx];
+      const div = document.createElement('div');
+      div.className = 'terminal-line ' + line.type;
+      body.appendChild(div);
+      const cursor = document.createElement('span');
+      cursor.className = 'terminal-cursor';
+      div.appendChild(cursor);
+
+      let charIdx = 0;
+      const speed = line.type === 'cmd' ? 45 : 25;
+      function typeChar() {
+        if (charIdx < line.text.length) {
+          div.insertBefore(document.createTextNode(line.text[charIdx]), cursor);
+          charIdx++;
+          setTimeout(typeChar, speed);
+        } else {
+          cursor.remove();
+          setTimeout(function() { typeLine(lineIdx + 1); }, 400);
+        }
+      }
+      typeChar();
+    }
+
+    const termObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting && !started) {
+          started = true;
+          setTimeout(function() { typeLine(0); }, 300);
+        }
+      });
+    }, { threshold: 0.3 });
+    termObserver.observe(document.getElementById('terminal-section'));
+  })();
+
+  // Metrics Counter Animation
+  (function() {
+    let animated = false;
+    const metricsBar = document.getElementById('metrics-bar');
+    const counterObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting && !animated) {
+          animated = true;
+          // Count up numeric metrics
+          metricsBar.querySelectorAll('.metric-item[data-target]').forEach(function(item) {
+            const target = parseInt(item.dataset.target);
+            const suffix = item.dataset.suffix || '';
+            const valueEl = item.querySelector('.metric-value');
+            let current = 0;
+            const duration = 1500;
+            const stepTime = duration / target;
+            const timer = setInterval(function() {
+              current++;
+              valueEl.textContent = current + suffix;
+              if (current >= target) clearInterval(timer);
+            }, stepTime);
+          });
+          // Fade in text metrics
+          metricsBar.querySelectorAll('.fade-metric').forEach(function(item, i) {
+            setTimeout(function() {
+              item.classList.add('visible');
+            }, 600 + i * 300);
+          });
+        }
+      });
+    }, { threshold: 0.3 });
+    counterObserver.observe(metricsBar);
+  })();
+
+  // DNA Double Helix Canvas
+  (function() {
+    const canvas = document.getElementById('dna-canvas');
+    const ctx = canvas.getContext('2d');
+    let mouseX = 0, mouseY = 0;
+    let w, h;
+    const isMobile = window.innerWidth <= 768;
+    const numPoints = isMobile ? 18 : 28;
+    const helixRadius = isMobile ? 40 : 60;
+    const verticalSpacing = isMobile ? 22 : 18;
+
+    function resize() {
+      const hero = canvas.parentElement;
+      w = canvas.width = canvas.offsetWidth;
+      h = canvas.height = hero.offsetHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    document.addEventListener('mousemove', function(e) {
+      const rect = canvas.getBoundingClientRect();
+      mouseX = (e.clientX - rect.left - w / 2) / w;
+      mouseY = (e.clientY - rect.top - h / 2) / h;
+    });
+
+    let rotation = 0;
+
+    function draw() {
+      ctx.clearRect(0, 0, w, h);
+      rotation += 0.008;
+
+      const centerX = w * 0.5;
+      const startY = (h - numPoints * verticalSpacing) / 2;
+      const parallaxX = mouseX * 15;
+      const parallaxY = mouseY * 10;
+
+      const strand1 = [];
+      const strand2 = [];
+
+      for (let i = 0; i < numPoints; i++) {
+        const angle = rotation + i * 0.35;
+        const y = startY + i * verticalSpacing + parallaxY;
+        const x1 = centerX + Math.cos(angle) * helixRadius + parallaxX;
+        const x2 = centerX + Math.cos(angle + Math.PI) * helixRadius + parallaxX;
+        const depth1 = (Math.sin(angle) + 1) / 2;
+        const depth2 = (Math.sin(angle + Math.PI) + 1) / 2;
+        strand1.push({ x: x1, y, depth: depth1 });
+        strand2.push({ x: x2, y, depth: depth2 });
+      }
+
+      // Draw rungs
+      for (let i = 0; i < numPoints; i++) {
+        if (i % 2 === 0) {
+          ctx.beginPath();
+          ctx.moveTo(strand1[i].x, strand1[i].y);
+          ctx.lineTo(strand2[i].x, strand2[i].y);
+          ctx.strokeStyle = 'rgba(80, 80, 70, 0.3)';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+      }
+
+      // Draw strands
+      function drawStrand(points, color) {
+        ctx.beginPath();
+        for (let i = 0; i < points.length; i++) {
+          const p = points[i];
+          if (i === 0) ctx.moveTo(p.x, p.y);
+          else {
+            const prev = points[i - 1];
+            const cpx = (prev.x + p.x) / 2;
+            const cpy = (prev.y + p.y) / 2;
+            ctx.quadraticCurveTo(prev.x, prev.y, cpx, cpy);
+          }
+        }
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+
+      // Draw back strand first, front strand on top
+      for (let i = 0; i < numPoints; i++) {
+        const s1Front = strand1[i].depth > 0.5;
+        if (!s1Front) {
+          // strand1 is behind
+        }
+      }
+
+      drawStrand(strand1, 'rgba(200, 255, 0, 0.6)');
+      drawStrand(strand2, 'rgba(80, 80, 70, 0.5)');
+
+      // Draw nodes
+      for (let i = 0; i < numPoints; i++) {
+        const p1 = strand1[i];
+        const p2 = strand2[i];
+        const r1 = 2 + p1.depth * 2;
+        const r2 = 2 + p2.depth * 2;
+
+        ctx.beginPath();
+        ctx.arc(p1.x, p1.y, r1, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(200, 255, 0, ' + (0.3 + p1.depth * 0.5) + ')';
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(p2.x, p2.y, r2, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(80, 80, 70, ' + (0.3 + p2.depth * 0.4) + ')';
+        ctx.fill();
+      }
+
+      requestAnimationFrame(draw);
+    }
+    draw();
+  })();
 </script>
 
 </body>
